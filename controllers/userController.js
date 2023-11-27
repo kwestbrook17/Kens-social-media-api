@@ -1,34 +1,87 @@
-const User = require('../models/User');
+const { User } = require('../models/user');
 
-module.exports = {
-  async getUsers(req, res) {
+const userController = {
+  getAllUsers: async (req, res) => {
     try {
       const users = await User.find();
       res.json(users);
-    } catch (err) {
-      res.status(500).json(err);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
     }
   },
-  async getSingleUser(req, res) {
-    try {
-      const user = await User.findOne({ _id: req.params.userId });
 
-      if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
-      }
+  getUserById: async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      res.json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+
+  createUser: async (req, res) => {
+    try {
+      const newUser = await User.create(req.body);
+      res.json(newUser);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+
+  addFriends: async (req, res) => {
+    try {
+      const { userId, friendId } = req.params;
+
+      // Logic to add a friend to the user
+      const user = await User.findById(userId);
+      user.friends.push(friendId);
+      await user.save();
 
       res.json(user);
-    } catch (err) {
-      res.status(500).json(err);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
     }
   },
-  // create a new user
-  async createUser(req, res) {
+
+  updateUser: async (req, res) => {
     try {
-      const dbUserData = await User.create(req.body);
-      res.json(dbUserData);
-    } catch (err) {
-      res.status(500).json(err)
+      const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(updatedUser);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    try {
+      const deletedUser = await User.findByIdAndDelete(req.params.id);
+      res.json(deletedUser);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  },
+
+  removeFriend: async (req, res) => {
+    try {
+      const { userId, friendId } = req.params;
+
+      // Logic to remove a friend from the user
+      const user = await User.findById(userId);
+      user.friends.pull(friendId);
+      await user.save();
+
+      res.json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Server error' });
     }
   },
 };
+
+module.exports = userController;
