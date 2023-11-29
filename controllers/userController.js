@@ -31,7 +31,7 @@ const userController = {
     }
   },
 
-  addFriends: async (req, res) => {
+  addFriend: async (req, res) => {
     try {
       const { userId, friendId } = req.params;
 
